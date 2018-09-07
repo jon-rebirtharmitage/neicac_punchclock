@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html class="full" lang="en" ng-app>
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Rebirth Armitage Studios">
+
+    <title>NEICAC Punch Card</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/core.css" rel="stylesheet">
+    
+    <!-- Import AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+
+  </head>
+
+  <body id="page-top">
+
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="container">
+        <a class="navbar-brand" href="#page-top"></a>
+      </div>
+    </nav>
+
+    <div data-target="mainNav" data-offset="0">
+      <section id="main">
+        <div class="container" ng-controller="timecard">
+          <div class="row">
+            <div class="col-lg-12 mx-auto">
+              <h2>Punch Card</h2>
+              <p class="lead">Enter your Pin to start login</p>
+              <p>
+               Enter Pin Number : <input type="text" name="pin" id="pin" ng-model="item.pin"><br>
+              </p>
+               <p>
+               <button type="submit" ng-click="login()" id="action-button" class="btn btn-primary buffered">Login</button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <!-- Footer -->
+    <footer class="py-5 bg-dark">
+      <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; NEICAC 2018</p>
+      </div>
+      <!-- /.container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="/js/jquery.min.js"></script>
+
+    <!-- Custom JavaScript for this theme -->
+    <script src="/js/core.js"></script>
+  
+    <script type="text/javascript">
+		var timecard = function($scope) {
+			$scope.items = [];
+        $scope.login = function() {
+				  var str = "";
+          str = (str + document.getElementById('pin').value);
+					window.location.replace("http://rebirtharmitage.com:8084/loginProcess/" + str);
+        }
+			}
+	</script>
+
+  </body>
+
+</html>
