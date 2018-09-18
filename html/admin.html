@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html class="full" lang="en" ng-app>
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Rebirth Armitage Studios">
+
+    <title>NEICAC Punch Card : Administration</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    
+    <!-- Custom styles for this template -->
+    <link href="/css/core.css" rel="stylesheet">
+    <link href="/css/jquery-ui.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    
+    <!-- Import AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+      $( function() {
+        $( "#accordion" ).accordion({
+          heightStyle: "content"
+        });
+      } );
+    </script>
+  </head>
+
+  <body id="page-top">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">NEICAC Timeclock System : Administration</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="http://rebirtharmitage.com:8084">Home
+                <span class="sr-only">(current)</span>
+              </a>
+            <li class="nav-item">
+              <a class="nav-link" href="http://rebirtharmitage.com:8084/logout">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div data-target="mainNav" data-offset="0" id="mainbody">
+      <section id="main">
+        <div class="container" ng-controller="timecard">
+          <div class="row">
+            <div class="col-lg-12 mx-auto">
+              <h2>
+                Welcome : 
+              </h2>
+              <p>
+                This is the administration console for the timecard system. 
+              </p>
+							<div>
+                <h4>
+                  Manage Users
+                </h4>
+                <p>
+                  <a class="lead" href="http://rebirtharmitage.com:8084/createUser">Create a new User</a>
+                </p>
+                <p>
+                  <a class="lead" href="http://rebirtharmitage.com:8084/selectUser">Edit a Current User</a>
+                </p>
+                <p>
+                  <a class="lead" href="http://rebirtharmitage.com:8084/selectUser">Delete a Current User</a>
+                </p>
+                <p>
+                  <a class="lead" href="http://rebirtharmitage.com:8084/selectUser">Edit User Timecard</a>
+                </p>
+              </div>
+              <div>
+                <h4>
+                  Manage Adminstrator
+                </h4>
+                <p>
+                  <a class="lead" href="http://rebirtharmitage.com:8084/createAdmin">Create New Admin</a>
+                </p>
+                <p>
+                  <a class="lead" href="http://rebirtharmitage.com:8084/selectAdmin">Edit a Current Admin</a>
+                </p>
+                <p>
+                  <a class="lead" href="http://rebirtharmitage.com:8084/selectAdmin">Delete a Current Admin</a>
+                </p>
+              </div>
+              <div>
+                <h4>
+                  Timecard Report
+                </h4>
+                <p>
+                  <a class="lead" href="http://rebirtharmitage.com:8084/timecardReports">Timecard Reports</a>
+                </p>
+              </div>
+            </div>
+          </div>
+      </section>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="py-5 bg-dark">
+      <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; NEICAC 2018</p>
+      </div>
+      <!-- /.container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+
+    <!-- Custom JavaScript for this theme -->
+    <script src="/js/core.js"></script>
+  </body>
+
+</html>

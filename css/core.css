@@ -4,7 +4,9 @@
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-scrolling-nav/blob/master/LICENSE)
  */
 body{
-
+  padding-top: 54px;
+  min-height: 100%;
+  height: 100%;
 }
 header {
   /*padding: 154px 0 100px;*/
@@ -15,6 +17,13 @@ header {
   header {
     /*padding: 156px 0 100px;*/
   }
+  
+  
+}
+
+#mainbody{
+  margin-top: 54px;
+  min-height: 100%;
 }
 
 .banner{

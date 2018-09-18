@@ -11,32 +11,70 @@
     <title>NEICAC Punch Card</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    
     <!-- Custom styles for this template -->
     <link href="/css/core.css" rel="stylesheet">
+    <link href="/css/jquery-ui.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     
     <!-- Import AngularJS -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+      $( function() {
+        $( "#accordion" ).accordion({
+          heightStyle: "content"
+        });
+      } );
+    </script>
   </head>
 
   <body id="page-top">
 
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="#page-top"></a>
+        <a class="navbar-brand" href="#">NEICAC Timeclock System</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="http://rebirtharmitage.com:8084">Home
+                <span class="sr-only">(current)</span>
+              </a>
+            </li>
+                        <li class="nav-item">
+              <a class="nav-link" href="http://rebirtharmitage.com:8084">Punch In</a>
+            </li>
+                        <li class="nav-item">
+              <a class="nav-link" href="http://rebirtharmitage.com:8084">Punch Out</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://rebirtharmitage.com:8084/timecard">View Timecard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Service Request</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact Accounting</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
 
-    <div data-target="mainNav" data-offset="0">
+    <div data-target="mainNav" data-offset="0" id="mainbody">
       <section id="main">
         <div class="container" ng-controller="timecard">
           <div class="row">
             <div class="col-lg-12 mx-auto">
-              <h2>{{.Title}}</h2>
-              <p class="lead">{{.Body}}</p>
+              <h2>Timecard : {{.Fname}} {{.Lname}}</h2>
+              <p class="lead"></p>
+              <p class="lead">Hours Logged Today [Only Display Hours Currently Logged] {{.FormattedSum}}</p>
 								<div>
 									<table class="table table-bordered table-back">
 										<thead>
@@ -59,13 +97,49 @@
 										{{end}}
 										</tbody>
 									</table>
+                 </div>
+              
+                 <div id="accordion">
+                   {{range .AllPunchcard}}
+                   
+                    <h3>
+                    {{.Title}} Click to View Punches for Date
+                    </h3>
+                   <div>
+                     <h3>
+                       {{.Title}} : Total of Hours Worked {{.FormattedSum}}
+                     </h3>
+                    <table class="table table-bordered table-back">
+										<thead>
+											<tr>
+												<th>PunchTime</th>
+												<th>Type</th>
+											</tr>
+										</thead>
+										  <tbody>
+                      {{range .Punchf}}
+											<tr>
+												<td>{{.FormattedPunch}}</td>
+												<td>  {{ if (eq .Punchtype 0)}}
+                                Punched In
+                              {{else}}
+                                Punched Out
+                              {{end}}
+                        </td>
+											</tr>
+                      {{end}}
+										  </tbody>
+									  </table>
+                    </div>
+                   {{end}}
 								</div>
+              
+              </div>
 							</div>
             </div>
-          </div>
-        </div>
       </section>
-
+    </div>
+    
     <!-- Footer -->
     <footer class="py-5 bg-dark">
       <div class="container">
@@ -76,21 +150,10 @@
 
     <!-- Bootstrap core JavaScript -->
     <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
 
     <!-- Custom JavaScript for this theme -->
     <script src="/js/core.js"></script>
-  
-    <script type="text/javascript">
-		var timecard = function($scope) {
-			$scope.items = [];
-        $scope.login = function() {
-				  var str = "";
-          str = (str + document.getElementById('pin').value);
-					window.location.replace("http://rebirtharmitage.com:8084/loginProcess/" + str);
-        }
-			}
-	</script>
-
   </body>
 
 </html>
