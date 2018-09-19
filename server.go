@@ -26,6 +26,14 @@ func loadTimecard(tp timecardPage) (*timecardPage, error){
 	return &tp, nil
 }
 
+func loadUsers(up userPage) (*userPage, error){
+  return &up, nil
+}
+
+func loadAdmins(ap adminPage) (*adminPage, error){
+  return &ap, nil
+}
+
 func indexViewHandler(w http.ResponseWriter, r *http.Request) {
 	p, _ := loadPage("Test")
   renderTemplate(w, "./html/index", p)
@@ -71,6 +79,21 @@ func createAdminFailedViewHandler(w http.ResponseWriter, r *http.Request) {
   renderTemplate(w, "./html/createAdminFailed", p)
 }
 
+func createUserViewHandler(w http.ResponseWriter, r *http.Request) {
+  p, _ := loadPage("Punch")
+  renderTemplate(w, "./html/createUser", p)
+}
+
+func createUserSuccessViewHandler(w http.ResponseWriter, r *http.Request) {
+	p, _ := loadPage("Test")
+  renderTemplate(w, "./html/createUserSuccess", p)
+}
+
+func createUserFailedViewHandler(w http.ResponseWriter, r *http.Request) {
+	p, _ := loadPage("Test")
+  renderTemplate(w, "./html/createUserFailed", p)
+}
+
 func timecardViewHandler(w http.ResponseWriter, r *http.Request) {
   session, _ := store.Get(r, "neicac_punchcard")
   tp := timecardPage{}
@@ -91,7 +114,7 @@ func timecardViewHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Println(tp.AllPunchcard[m])
   }
   for j := range tp.Punchcard{
-    tp.Punchcard[j].FormattedPunch = tp.Punchcard[j].Punch.Format("Mon Jan _2 3:05 PM 2006")
+    tp.Punchcard[j].FormattedPunch = tp.Punchcard[j].Punch.Format("Mon Jan _2 3:04PM")
   }
   for k := range tp.AllPunchcard{
     for m := range tp.AllPunchcard[k].Punchf{
@@ -100,6 +123,41 @@ func timecardViewHandler(w http.ResponseWriter, r *http.Request) {
   }
   p, _ := loadTimecard(tp)
   renderTimecard(w, "./html/timecard", p)
+}
+
+//HERE
+func listUsersViewHandler(w http.ResponseWriter, r *http.Request) {
+  session, _ := store.Get(r, "neicac_punchcard")
+  up := userPage{}
+  d := ""
+  if session.Values["department"].(string) == "indirect" {
+    d = "all"
+    up.Title = "List of Users in all departments"
+  }else{
+    d = session.Values["department"].(string)
+    up.Title = "List of Users in Department : " + session.Values["department"].(string)
+  }
+  up.Body = session.Values["department"].(string)
+  up.Users = getUsers(d)
+  p, _ := loadUsers(up)
+  renderUsers(w, "./html/listUsers", p)
+}
+
+func listAdminsViewHandler(w http.ResponseWriter, r *http.Request) {
+  session, _ := store.Get(r, "neicac_punchcard")
+  ap := adminPage{}
+  d := ""
+  if session.Values["department"].(string) == "indirect" {
+    d = "all"
+    ap.Title = "List of Admins in all departments"
+  }else{
+    d = session.Values["department"].(string)
+    ap.Title = "List of Admins in Department : " + session.Values["department"].(string)
+  }
+  ap.Body = session.Values["department"].(string)
+  ap.Admins = getAdmins(d)
+  p, _ := loadAdmins(ap)
+  renderAdmins(w, "./html/listAdmins", p)
 }
 
 func filterPunchcardCurrent(tp timecardPage) []Punches{
@@ -204,7 +262,7 @@ func filterPunchcard(tp timecardPage) []Pcard {
 }
 
 
-
+//RENDER SECTION
 //Renders all html pages from the system
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
   t, _ := template.ParseFiles(tmpl + ".html")
@@ -215,6 +273,17 @@ func renderTimecard(w http.ResponseWriter, tmpl string, p *timecardPage) {
   t, _ := template.ParseFiles(tmpl + ".html")
   t.Execute(w, p)
 }
+
+func renderUsers(w http.ResponseWriter, tmpl string, p *userPage) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderAdmins(w http.ResponseWriter, tmpl string, p *adminPage) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+//END RENDER SECTION
 
 //Created unique session ID to insure the user is in the current session
 //When entering in data about logging in or logging out
@@ -284,6 +353,7 @@ func adminLoginProcess(w http.ResponseWriter, r *http.Request) {
   if b {
     session.Values["session"] = "admin"
     session.Values["userID"] = uname
+    session.Values["department"] = a.Department
     session.Values["authenticated"] = true
     session.Save(r, w)
     http.Redirect(w, r, "http://rebirtharmitage.com:8084/admin", 302)
@@ -312,12 +382,35 @@ func createAdminProcess(w http.ResponseWriter, r *http.Request) {
       }else{
         fmt.Fprint(w, "User already Exists")
       }
-      //http.Redirect(w, r, "http://rebirtharmitage.com:8084/createAdminSuccess", 302)
     }else{
       fmt.Fprint(w, "User already Exists")
-      //http.Redirect(w, r, "http://rebirtharmitage.com:8084/createAdminFailed", 302)
     }
     
+  }
+}
+
+//Login to the admin system
+func createUserProcess(w http.ResponseWriter, r *http.Request) {
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  var m newUser
+  b, _ := ioutil.ReadAll(r.Body)
+  json.Unmarshal(b, &m)
+  fmt.Println(m.Pin)
+  i, err := strconv.Atoi(m.Pin)
+  if err != nil {
+    fmt.Fprint(w, "Pin was Invalid")
+  }else{
+    c := findUser(i)
+    if c != true{
+      p := createUser(m)
+      if p {
+        fmt.Fprint(w, "User Account Created")
+      }else{
+        fmt.Fprint(w, "Pin already Exists")
+      }
+    }else{
+      fmt.Fprint(w, "Pin already Exists")
+   }
   }
 }
 
@@ -364,6 +457,18 @@ func punchOutProcess(w http.ResponseWriter, r *http.Request) {
   http.Redirect(w, r, "http://rebirtharmitage.com:8084", 302)
 }
 
+func masterPunchIn(w http.ResponseWriter, r *http.Request){
+  vars := mux.Vars(r)
+  punchInUser(vars["Value"])
+  http.Redirect(w, r, "http://rebirtharmitage.com:8084/listUsers", 302)
+}
+
+func masterPunchOut(w http.ResponseWriter, r *http.Request){
+  vars := mux.Vars(r)
+  punchOutUser(vars["Value"])
+  http.Redirect(w, r, "http://rebirtharmitage.com:8084/listUsers", 302)
+}
+
 /*
 	Start of ROUTER Section
 */
@@ -379,14 +484,20 @@ func main() {
   router.HandleFunc("/failedLogin", failedViewHandler)
   router.HandleFunc("/timecard", timecardViewHandler)
   router.HandleFunc("/admin", adminViewHandler)
-//   router.HandleFunc("/createUser", createUserViewHandler)
-//   router.HandleFunc("/createUserProcess", createUserProcess).Methods("POST")
+  router.HandleFunc("/createUser", createUserViewHandler)
+  router.HandleFunc("/createUserProcess", createUserProcess).Methods("POST")
+  router.HandleFunc("/createUserFailed", createUserFailedViewHandler)
+  router.HandleFunc("/createUserSuccess", createUserSuccessViewHandler)
+  router.HandleFunc("/listUsers", listUsersViewHandler)
   router.HandleFunc("/createAdmin", createAdminViewHandler)
   router.HandleFunc("/createAdminFailed", createAdminFailedViewHandler)
   router.HandleFunc("/createAdminSuccess", createAdminSuccessViewHandler)
   router.HandleFunc("/createAdminProcess", createAdminProcess).Methods("POST")
   router.HandleFunc("/adminLogin", adminLoginViewHandler)
   router.HandleFunc("/adminLoginProcess/{Value}", adminLoginProcess)
+  router.HandleFunc("/listAdmins", listAdminsViewHandler)
+  router.HandleFunc("/masterPunchIn/{Value}", masterPunchIn)
+  router.HandleFunc("/masterPunchOut/{Value}", masterPunchOut)
   router.HandleFunc("/logout", logoffProcess)
 	http.Handle("/css/",http.StripPrefix("/css/", http.FileServer(http.Dir("./css"))))
   http.Handle("/jQueryAssets/",http.StripPrefix("/jQueryAssets/", http.FileServer(http.Dir("./JQueryAssets"))))

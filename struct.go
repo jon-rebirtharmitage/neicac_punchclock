@@ -33,10 +33,30 @@ type timecardPage struct {
   AllPunchcard []Pcard
 }
 
+type userPage struct {
+  Title string
+  Body string
+  Users []neicacUser
+}
+
+type adminPage struct {
+  Title string
+  Body string
+  Admins []adminUser
+}
+
 type neicacUser struct{
   Username  string
   Fname, Lname string
+  Department string
   Pin, Status int
+}
+
+type newUser struct {
+	Firstname       string `json:"firstname"`
+	Lastname        string `json:"lastname"`
+	Pin             string `json:"pin"`
+	Department      string `json:"Department"`
 }
 
 type adminUser struct{

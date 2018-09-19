@@ -97,6 +97,60 @@ func getPunches(tp timecardPage, timecardType int) []Punches{
 }
 
 //Get the users punches from the timestamp table
+func getUsers(d string) []neicacUser{
+  session, err := mgo.Dial("localhost:27017")
+	if err != nil {
+			panic(err)
+	}
+	defer session.Close()
+
+  c := session.DB("neicac").C("test")
+	result := []neicacUser{}
+  if d == "all" {
+    iter := c.Find(bson.M{}).Limit(1000).Iter()
+    err = iter.All(&result)
+    if err != nil {
+      log.Fatal(err)
+    }
+  }else{
+    iter := c.Find(bson.M{"department":d}).Limit(1000).Iter()
+    err = iter.All(&result)
+    if err != nil {
+      log.Fatal(err)
+    }
+  }
+
+	return result
+}
+
+//Get the users punches from the timestamp table
+func getAdmins(d string) []adminUser{
+  session, err := mgo.Dial("localhost:27017")
+	if err != nil {
+			panic(err)
+	}
+	defer session.Close()
+
+  c := session.DB("neicac").C("admin")
+	result := []adminUser{}
+  if d == "all" {
+    iter := c.Find(bson.M{}).Limit(1000).Iter()
+    err = iter.All(&result)
+    if err != nil {
+      log.Fatal(err)
+    }
+  }else{
+    iter := c.Find(bson.M{"department":d}).Limit(1000).Iter()
+    err = iter.All(&result)
+    if err != nil {
+      log.Fatal(err)
+    }
+  }
+
+	return result
+}
+
+//Get the users punches from the timestamp table
 func adminLoginTest(uname string, pass string) (adminUser, bool){
   session, err := mgo.Dial("localhost:27017")
 	if err != nil {
@@ -134,5 +188,24 @@ func createAdmin(n newAdmin) bool {
   m.Role = "Admin"
   m.Auth = false
   c.Insert(bson.M{"username":m.Username,"fname":m.Fname,"lname":m.Lname,"password":m.Password,"department":m.Department,"role":m.Role,"auth":m.Auth})
+  return true
+}
+
+//Takes the user information and creates a new one and inserts into the user database
+func createUser(n newUser) bool {
+  session, err := mgo.Dial("localhost:27017")
+	if err != nil {
+			panic(err)
+	}
+	defer session.Close()
+  c := session.DB("neicac").C("test")
+  m := neicacUser{}
+  i, _ := strconv.Atoi(n.Pin)
+  m.Fname = n.Firstname
+  m.Lname = n.Lastname
+  m.Pin = i
+  m.Department = n.Department
+  m.Status = 0
+  c.Insert(bson.M{"fname":m.Fname,"lname":m.Lname,"pin":m.Pin,"department":m.Department,"status":m.Status})
   return true
 }

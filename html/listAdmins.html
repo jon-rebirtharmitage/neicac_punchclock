@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="Rebirth Armitage Studios">
 
-    <title>NEICAC Punch Card : Administration</title>
+    <title>NEICAC Punch Card</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.css" rel="stylesheet">
@@ -43,7 +43,7 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="http://rebirtharmitage.com:8084">Home
+              <a class="nav-link" href="http://rebirtharmitage.com:8084/admin">Home
                 <span class="sr-only">(current)</span>
               </a>
             <li class="nav-item">
@@ -59,53 +59,73 @@
         <div class="container" ng-controller="timecard">
           <div class="row">
             <div class="col-lg-12 mx-auto">
-              <h2>
-                Welcome : 
-              </h2>
-              <p>
-                This is the administration console for the timecard system. 
-              </p>
-							<div>
-                <h4>
-                  Manage Users
-                </h4>
-                <p>
-                  <a class="lead" href="http://rebirtharmitage.com:8084/createUser">Create a new User</a>
-                </p>
-                <p>
-                  <a class="lead" href="http://rebirtharmitage.com:8084/listUsers">Edit a Current User</a>
-                </p>
-                <p>
-                  <a class="lead" href="http://rebirtharmitage.com:8084/listUsers">Delete a Current User</a>
-                </p>
-                <p>
-                  <a class="lead" href="http://rebirtharmitage.com:8084/listUsers">Edit User Timecard</a>
-                </p>
+              <h2>Users List</h2>
+              <p class="lead"></p>
+              <p class="lead">List of all users by your department {{.Body}}</p>
+								<div>
+									<table class="table table-bordered table-back">
+										<thead>
+											<tr>
+												<th>User</th>
+												<th>Username</th>
+                        <th>Department</th>
+                        <th>Options</th>
+											</tr>
+										</thead>
+										<tbody>
+										{{range .Admins}}
+											<tr>
+												<td>{{.Fname}} {{.Lname}}</td>
+                        <td>{{.Username}}</td>
+                        <td>{{.Department}}</td>
+                        <td>
+                          <button type="button" onclick="location.href='http://rebirtharmitage.com:8084/adminEdit/{{.Username}}';" class="btn btn-primary buffered">Edit</button>
+                          <button type="button" onclick="location.href='http://rebirtharmitage.com:8084/adminDelete/{{.Username}}';" class="btn btn-primary buffered">Delete</button>
+                        </td>
+											</tr>
+										{{end}}
+										</tbody>
+									</table>
+                 </div>
+              
+<!--                  <div id="accordion">
+                   {{range .AllPunchcard}}
+                   
+                    <h3>
+                    {{.Title}} Click to View Punches for Date
+                    </h3>
+                   <div>
+                     <h3>
+                       {{.Title}} : Total of Hours Worked {{.FormattedSum}}
+                     </h3>
+                    <table class="table table-bordered table-back">
+										<thead>
+											<tr>
+												<th>PunchTime</th>
+												<th>Type</th>
+											</tr>
+										</thead>
+										  <tbody>
+                      {{range .Punchf}}
+											<tr>
+												<td>{{.FormattedPunch}}</td>
+												<td>  {{ if (eq .Punchtype 0)}}
+                                Punched In
+                              {{else}}
+                                Punched Out
+                              {{end}}
+                        </td>
+											</tr>
+                      {{end}}
+										  </tbody>
+									  </table>
+                    </div>
+                   {{end}}
+								</div> -->
+              
               </div>
-              <div>
-                <h4>
-                  Manage Adminstrator
-                </h4>
-                <p>
-                  <a class="lead" href="http://rebirtharmitage.com:8084/createAdmin">Create New Admin</a>
-                </p>
-                <p>
-                  <a class="lead" href="http://rebirtharmitage.com:8084/listAdmins">Edit a Current Admin</a>
-                </p>
-                <p>
-                  <a class="lead" href="http://rebirtharmitage.com:8084/listAdmins">Delete a Current Admin</a>
-                </p>
-              </div>
-              <div>
-                <h4>
-                  Timecard Report
-                </h4>
-                <p>
-                  <a class="lead" href="http://rebirtharmitage.com:8084/timecardReports">Timecard Reports</a>
-                </p>
-              </div>
+							</div>
             </div>
-          </div>
       </section>
     </div>
     
