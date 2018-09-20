@@ -2,6 +2,7 @@ package main
 
 import(
   "time"
+  "gopkg.in/mgo.v2/bson"
 )
 
 //STUCTS
@@ -26,6 +27,7 @@ type timecardPage struct {
   Username string
   Fname, Lname string
   Pin, Status int
+  Department string
   Current time.Time
   Sum time.Duration
   FormattedSum string
@@ -88,9 +90,18 @@ type Pcard struct{
 }
 
 type Punches struct{
-  Pin int
-  Punch time.Time
-  FormattedPunch string
-  Punchtype int
+  Id bson.ObjectId      `json:"id" bson:"_id,omitempty"`
+  Pin int               `json:"pin"`
+  Punch time.Time       `json:"punch"`
+  FormattedPunch string `json:"formattedPunch"`
+  Punchtype int         `json:"punchtype"`
+}
+
+type EPunch struct{
+  Id string             `json:"id"`
+  Pin int            `json:"pin"`
+  Punch string          `json:"punch"`
+  FormattedPunch string `json:"formattedPunch"`
+  Punchtype int      `json:"punchtype"`
 }
 //END STRUCTS

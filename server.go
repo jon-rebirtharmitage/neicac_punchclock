@@ -18,6 +18,7 @@ import(
 //Session Storage for secure session variable handling using AES-256 Encryption
 var store = sessions.NewCookieStore([]byte("30efe06c8b1c6a0cdca9298090d551cd86547a90435d15fd90fb3765af766072"))
 
+//Custom Page Loaders
 func loadPage(title string) (*Page, error){
 	return &Page{Title: title, Body: "blank..."}, nil
 }
@@ -34,6 +35,28 @@ func loadAdmins(ap adminPage) (*adminPage, error){
   return &ap, nil
 }
 
+func loadTimecardEdit(tp timecardPage) (*timecardPage, error){
+  return &tp, nil
+}
+
+func loadEditPunchPage(p Punches) (*Punches, error) {
+  return &p, nil
+}
+
+func loadAddPunchPage(p Punches) (*Punches, error) {
+  return &p, nil
+}
+
+func loadEditUserPage(p neicacUser) (*neicacUser, error) {
+  return &p, nil
+}
+
+func loadEditAdminPage(p adminUser) (*adminUser, error) {
+  return &p, nil
+}
+//END Custom Page Loaders
+
+//GENERIC Page Loader Section
 func indexViewHandler(w http.ResponseWriter, r *http.Request) {
 	p, _ := loadPage("Test")
   renderTemplate(w, "./html/index", p)
@@ -93,7 +116,9 @@ func createUserFailedViewHandler(w http.ResponseWriter, r *http.Request) {
 	p, _ := loadPage("Test")
   renderTemplate(w, "./html/createUserFailed", p)
 }
+//End Generic Page Loader Section
 
+//Timecard Viewer for users
 func timecardViewHandler(w http.ResponseWriter, r *http.Request) {
   session, _ := store.Get(r, "neicac_punchcard")
   tp := timecardPage{}
@@ -123,6 +148,44 @@ func timecardViewHandler(w http.ResponseWriter, r *http.Request) {
   }
   p, _ := loadTimecard(tp)
   renderTimecard(w, "./html/timecard", p)
+}
+
+//Editable Time Card
+func timecardEditViewHandler(w http.ResponseWriter, r *http.Request) {
+  tp := timecardPage{}
+  vars := mux.Vars(r)
+  i, err := strconv.Atoi(vars["Value"])
+  if err != nil {
+    http.Redirect(w, r, "http://rebirtharmitage.com:8084/generalError", 301)
+  }
+  a := checkStatus(i)  
+  tp.Title = a.Username
+  tp.Body = a.Username
+  tp.Username = a.Username
+  tp.Pin = i
+  tp.Status = a.Status
+  tp.Fname = a.Fname
+  tp.Lname = a.Lname
+  tp.Department = a.Department
+  tp.Current = time.Now()
+  tp.Punchcard = getPunches(tp, 1)
+  tp.AllPunchcard = filterPunchcard(tp)
+  tp.Punchcard = filterPunchcardCurrent(tp)
+  tp.Sum = findHoursWorked(tp)
+  tp.FormattedSum = fmtDuration(tp.Sum)
+  for m := range tp.AllPunchcard{
+    fmt.Println(tp.AllPunchcard[m])
+  }
+  for j := range tp.Punchcard{
+    tp.Punchcard[j].FormattedPunch = tp.Punchcard[j].Punch.Format("Mon Jan _2 3:04PM")
+  }
+  for k := range tp.AllPunchcard{
+    for m := range tp.AllPunchcard[k].Punchf{
+      tp.AllPunchcard[k].Punchf[m].FormattedPunch = tp.AllPunchcard[k].Punchf[m].Punch.Format("Mon Jan _2 3:04 PM")
+    }
+  }
+  p, _ := loadTimecardEdit(tp)
+  renderTimecardEdit(w, "./html/timecardEdit", p)
 }
 
 //HERE
@@ -160,9 +223,30 @@ func listAdminsViewHandler(w http.ResponseWriter, r *http.Request) {
   renderAdmins(w, "./html/listAdmins", p)
 }
 
+func editPunchPageViewHandler(w http.ResponseWriter, r *http.Request) {
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  vars := mux.Vars(r)
+  s := vars["Value"]
+  fmt.Println(s)
+  b := Punches{}
+  a := loadPunch(s)
+  if a == b {
+    http.Redirect(w, r, "http://rebirtharmitage.com:8084/generalError", 301)
+  }else{
+    a.FormattedPunch = a.Punch.Format("2006-01-02 15:04")
+    a.FormattedPunch = strings.Replace(a.FormattedPunch, " ", "T", -1)
+    fmt.Println(a.FormattedPunch)
+    p, _ := loadEditPunchPage(a)
+    renderEditPunchPage(w, "./html/editPunchPage", p)
+  }
+}
+
+//FUNCTIONAL CODE SECTION
+//Contains functions to act on data outside of the web interfaces
 func filterPunchcardCurrent(tp timecardPage) []Punches{
   dp := []Punches{}
-  fromDate := time.Now().AddDate(0, 0, -1)
+  fromDate := time.Now().AddDate(0, 0, 0)
+  fromDate = time.Date(fromDate.Year(), fromDate.Month(), fromDate.Day(), 0, 0, 0, 0, fromDate.Location())
   toDate := time.Now()
   for j := range tp.Punchcard{
     fmt.Println(tp.Punchcard[j].Punch)
@@ -280,6 +364,31 @@ func renderUsers(w http.ResponseWriter, tmpl string, p *userPage) {
 }
 
 func renderAdmins(w http.ResponseWriter, tmpl string, p *adminPage) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderTimecardEdit(w http.ResponseWriter, tmpl string, p *timecardPage) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderEditPunchPage(w http.ResponseWriter, tmpl string, p *Punches) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderAddPunchPage(w http.ResponseWriter, tmpl string, p *Punches) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderEditUserPage(w http.ResponseWriter, tmpl string, p *neicacUser) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderEditAdminPage(w http.ResponseWriter, tmpl string, p *adminUser) {
   t, _ := template.ParseFiles(tmpl + ".html")
   t.Execute(w, p)
 }
@@ -469,6 +578,144 @@ func masterPunchOut(w http.ResponseWriter, r *http.Request){
   http.Redirect(w, r, "http://rebirtharmitage.com:8084/listUsers", 302)
 }
 
+func deletePunch(w http.ResponseWriter, r *http.Request){
+  vars := mux.Vars(r)
+  a := vars["Value"]
+  fmt.Println(a)
+  deletePunchMongo(a)
+  http.Redirect(w, r, "http://rebirtharmitage.com:8084/admin", 302)
+}
+
+func editPunchProcess(w http.ResponseWriter, r *http.Request){
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  var p EPunch
+  b, _ := ioutil.ReadAll(r.Body)
+  json.Unmarshal(b, &p)
+  if p.Pin == 0 {
+    fmt.Fprint(w, "Punch was not edited.")
+  }else{
+    layout := "2006-01-02T15:04"
+    t, err := time.Parse(layout, p.FormattedPunch)
+    
+    if err != nil {
+        fmt.Println(err)
+    }
+    t = t.Add(5*time.Hour)
+    updatePunch(p, t)
+    fmt.Fprint(w, "Punch was edited.")
+  }
+}
+
+func addPunchProcess(w http.ResponseWriter, r *http.Request){
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  var p EPunch
+  var pe Punches
+  b, _ := ioutil.ReadAll(r.Body)
+  json.Unmarshal(b, &p)
+  if p.Pin == 0 {
+    fmt.Fprint(w, "Punch was not added.")
+  }else{
+    layout := "2006-01-02T15:04"
+    t, err := time.Parse(layout, p.FormattedPunch)
+    
+    if err != nil {
+        fmt.Println(err)
+    }
+    t = t.Add(5*time.Hour)
+    pe.Punch = t
+    pe.Pin = p.Pin
+    pe.Punchtype = p.Punchtype
+    addPunch(pe)
+    fmt.Fprint(w, "Punch was added.")
+  }
+}
+
+func addPunchViewHandler(w http.ResponseWriter, r *http.Request){
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  vars := mux.Vars(r)
+  i, err := strconv.Atoi(vars["Value"])
+  if err != nil {
+    http.Redirect(w, r, "http://rebirtharmitage.com:8084/generalError", 302)
+  }else{
+    m := Punches{}
+    m.Pin = i
+    p, _ := loadAddPunchPage(m)
+    renderEditPunchPage(w, "./html/addPunchPage", p)
+  }
+}
+
+
+func editUserPageViewHandler(w http.ResponseWriter, r *http.Request){
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  vars := mux.Vars(r)
+  i, err := strconv.Atoi(vars["Value"])
+  if err != nil {
+    http.Redirect(w, r, "http://rebirtharmitage.com:8084/generalError", 302)
+  }else{
+    m := checkStatus(i)
+    p, _ := loadEditUserPage(m)
+    renderEditUserPage(w, "./html/editUserPage", p)
+  }
+}
+
+func editUserProcess(w http.ResponseWriter, r *http.Request){
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  var p newUser
+  var a neicacUser
+  b, _ := ioutil.ReadAll(r.Body)
+  json.Unmarshal(b, &p)
+  i, err := strconv.Atoi(p.Pin)
+  if err != nil {
+    fmt.Fprint(w, "Pin was Invalid")
+  }else{
+    c := findUser(i)
+    if c {
+        a.Pin = i
+        a.Fname = p.Firstname
+        a.Lname = p.Lastname
+        a.Department = p.Department
+        updateUser(a)
+        fmt.Fprint(w, "User account has been edited.")
+      }else{
+        fmt.Fprint(w, "Pin already Exists")
+     }
+  }
+}
+
+func editAdminPageViewHandler(w http.ResponseWriter, r *http.Request){
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  vars := mux.Vars(r)
+  a := vars["Value"]
+  m, n := getAdmin(a)
+  if n {
+      p, _ := loadEditAdminPage(m)
+      renderEditAdminPage(w, "./html/editAdminPage", p)
+  }else{
+    http.Redirect(w, r, "http://rebirtharmitage.com:8084/generalError", 302)
+  }
+}
+
+//Edit Existing Admin User
+func editAdminProcess(w http.ResponseWriter, r *http.Request) {
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  var m newAdmin
+  b, _ := ioutil.ReadAll(r.Body)
+  json.Unmarshal(b, &m)
+  if m.Password != m.PasswordConfirm {
+    fmt.Fprint(w, "Passwords did not match")
+  }else{
+    c, _ := adminLoginTest(m.Username, m.Password)
+    if c.Username != ""{
+      updateAdmin(m)
+      fmt.Fprint(w, "User Account Edited")
+    }else{
+      fmt.Fprint(w, "User already Exists")
+    }
+    
+  }
+}
+
+
 /*
 	Start of ROUTER Section
 */
@@ -496,8 +743,18 @@ func main() {
   router.HandleFunc("/adminLogin", adminLoginViewHandler)
   router.HandleFunc("/adminLoginProcess/{Value}", adminLoginProcess)
   router.HandleFunc("/listAdmins", listAdminsViewHandler)
+  router.HandleFunc("/timecardEdit/{Value}", timecardEditViewHandler)
   router.HandleFunc("/masterPunchIn/{Value}", masterPunchIn)
   router.HandleFunc("/masterPunchOut/{Value}", masterPunchOut)
+  router.HandleFunc("/deletePunch/{Value}", deletePunch)
+  router.HandleFunc("/addPunchPage/{Value}", addPunchViewHandler)
+  router.HandleFunc("/addPunchProcess", addPunchProcess).Methods("POST")
+  router.HandleFunc("/editPunchPage/{Value}", editPunchPageViewHandler)
+  router.HandleFunc("/editPunchProcess", editPunchProcess).Methods("POST")
+  router.HandleFunc("/editUserPage/{Value}", editUserPageViewHandler)
+  router.HandleFunc("/editUserProcess", editUserProcess).Methods("POST")
+  router.HandleFunc("/editAdminPage/{Value}", editAdminPageViewHandler)
+  router.HandleFunc("/editAdminProcess", editAdminProcess).Methods("POST")
   router.HandleFunc("/logout", logoffProcess)
 	http.Handle("/css/",http.StripPrefix("/css/", http.FileServer(http.Dir("./css"))))
   http.Handle("/jQueryAssets/",http.StripPrefix("/jQueryAssets/", http.FileServer(http.Dir("./JQueryAssets"))))

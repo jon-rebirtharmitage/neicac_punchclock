@@ -36,18 +36,31 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="#">NEICAC Timeclock System : Administration</a>
+        <a class="navbar-brand" href="#">NEICAC Timeclock System</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="http://rebirtharmitage.com:8084/admin">Home
+              <a class="nav-link" href="http://rebirtharmitage.com:8084">Home
                 <span class="sr-only">(current)</span>
               </a>
+            </li>
+                        <li class="nav-item">
+              <a class="nav-link" href="http://rebirtharmitage.com:8084">Punch In</a>
+            </li>
+                        <li class="nav-item">
+              <a class="nav-link" href="http://rebirtharmitage.com:8084">Punch Out</a>
+            </li>
             <li class="nav-item">
-              <a class="nav-link" href="http://rebirtharmitage.com:8084/logout">Logout</a>
+              <a class="nav-link" href="http://rebirtharmitage.com:8084/timecard">View Timecard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Service Request</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact Accounting</a>
             </li>
           </ul>
         </div>
@@ -59,28 +72,34 @@
         <div class="container" ng-controller="timecard">
           <div class="row">
             <div class="col-lg-12 mx-auto">
-              <h2>Users List</h2>
+              <h2>Timecard : {{.Fname}} {{.Lname}}</h2>
               <p class="lead"></p>
-              <p class="lead">List of all users by your department {{.Body}}</p>
+              <p class="lead">Hours Logged Today [Only Display Hours Currently Logged] {{.FormattedSum}}</p>
+              <p>
+                <button type="button" onclick="location.href='http://rebirtharmitage.com:8084/addPunchPage/{{.Pin}}';" class="btn btn-primary buffered">Add Punch</button>
+              </p>
 								<div>
 									<table class="table table-bordered table-back">
 										<thead>
 											<tr>
-												<th>User</th>
-												<th>Username</th>
-                        <th>Department</th>
+												<th>Punch Time</th>
+												<th>Type</th>
                         <th>Options</th>
 											</tr>
 										</thead>
 										<tbody>
-										{{range .Admins}}
+										{{range .Punchcard}}
 											<tr>
-												<td>{{.Fname}} {{.Lname}}</td>
-                        <td>{{.Username}}</td>
-                        <td>{{.Department}}</td>
+												<td>{{.FormattedPunch}}</td>
+												<td>  {{ if (eq .Punchtype 0)}}
+                                Punched In
+                              {{else}}
+                                Punched Out
+                              {{end}}
+                        </td>
                         <td>
-                          <button type="button" onclick="location.href='http://rebirtharmitage.com:8084/editAdminPage/{{.Username}}';" class="btn btn-primary buffered">Edit</button>
-                          <button type="button" onclick="location.href='http://rebirtharmitage.com:8084/deleteAdmin/{{.Username}}';" class="btn btn-primary buffered">Delete</button>
+                          <button type="button" onclick="location.href='http://rebirtharmitage.com:8084/editPunchPage/{{.Id.Hex}}';" class="btn btn-primary buffered">Edit</button>
+                          <button type="button" onclick="location.href='http://rebirtharmitage.com:8084/deletePunch/{{.Id.Hex}}';" class="btn btn-primary buffered">Delete</button>
                         </td>
 											</tr>
 										{{end}}
@@ -88,7 +107,7 @@
 									</table>
                  </div>
               
-<!--                  <div id="accordion">
+                 <div id="accordion">
                    {{range .AllPunchcard}}
                    
                     <h3>
@@ -103,6 +122,7 @@
 											<tr>
 												<th>PunchTime</th>
 												<th>Type</th>
+                        <th>Options</th>
 											</tr>
 										</thead>
 										  <tbody>
@@ -115,13 +135,17 @@
                                 Punched Out
                               {{end}}
                         </td>
+                        <td>
+                          <button type="button" onclick="location.href='http://rebirtharmitage.com:8084/editPunchPage/{{.Id.Hex}}';" class="btn btn-primary buffered">Edit</button>
+                          <button type="button" onclick="location.href='http://rebirtharmitage.com:8084/deletePunch/{{.Id.Hex}}';" class="btn btn-primary buffered">Delete</button>
+                        </td>
 											</tr>
                       {{end}}
 										  </tbody>
 									  </table>
                     </div>
                    {{end}}
-								</div> -->
+								</div>
               
               </div>
 							</div>
