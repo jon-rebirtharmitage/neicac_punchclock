@@ -114,7 +114,7 @@ func getUsers(d string) []neicacUser{
       log.Fatal(err)
     }
   }else{
-    iter := c.Find(bson.M{"department":d}).Limit(1000).Iter()
+    iter := c.Find(bson.M{"department":d}).Limit(1000).Sort("fname").Iter()
     err = iter.All(&result)
     if err != nil {
       log.Fatal(err)
@@ -141,7 +141,7 @@ func getAdmins(d string) []adminUser{
       log.Fatal(err)
     }
   }else{
-    iter := c.Find(bson.M{"department":d}).Limit(1000).Iter()
+    iter := c.Find(bson.M{"department":d}).Limit(1000).Sort("department").Iter()
     err = iter.All(&result)
     if err != nil {
       log.Fatal(err)

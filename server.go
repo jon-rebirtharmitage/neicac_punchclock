@@ -12,6 +12,7 @@ import(
   "encoding/json"
   "io/ioutil"
   "strings"
+  "sort"
 )
 
 //GLOBAL VARIABLES
@@ -24,6 +25,10 @@ func loadPage(title string) (*Page, error){
 }
 
 func loadTimecard(tp timecardPage) (*timecardPage, error){
+	return &tp, nil
+}
+
+func loadTimecardReport(tp timecardPage) (*timecardPage, error){
 	return &tp, nil
 }
 
@@ -118,6 +123,62 @@ func createUserFailedViewHandler(w http.ResponseWriter, r *http.Request) {
 }
 //End Generic Page Loader Section
 
+
+
+//RENDER SECTION
+//Renders all html pages from the system
+func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderTimecard(w http.ResponseWriter, tmpl string, p *timecardPage) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderUsers(w http.ResponseWriter, tmpl string, p *userPage) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderAdmins(w http.ResponseWriter, tmpl string, p *adminPage) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderTimecardEdit(w http.ResponseWriter, tmpl string, p *timecardPage) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderEditPunchPage(w http.ResponseWriter, tmpl string, p *Punches) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderAddPunchPage(w http.ResponseWriter, tmpl string, p *Punches) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderEditUserPage(w http.ResponseWriter, tmpl string, p *neicacUser) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderEditAdminPage(w http.ResponseWriter, tmpl string, p *adminUser) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+
+func renderTimecardReport(w http.ResponseWriter, tmpl string, p *timecardPage) {
+  t, _ := template.ParseFiles(tmpl + ".html")
+  t.Execute(w, p)
+}
+//END RENDER SECTION
+
+
 //Timecard Viewer for users
 func timecardViewHandler(w http.ResponseWriter, r *http.Request) {
   session, _ := store.Get(r, "neicac_punchcard")
@@ -202,6 +263,9 @@ func listUsersViewHandler(w http.ResponseWriter, r *http.Request) {
   }
   up.Body = session.Values["department"].(string)
   up.Users = getUsers(d)
+  sort.Slice(up.Users, func(i, j int) bool {
+    return up.Users[i].Fname < up.Users[j].Fname
+  })
   p, _ := loadUsers(up)
   renderUsers(w, "./html/listUsers", p)
 }
@@ -219,6 +283,9 @@ func listAdminsViewHandler(w http.ResponseWriter, r *http.Request) {
   }
   ap.Body = session.Values["department"].(string)
   ap.Admins = getAdmins(d)
+  sort.Slice(ap.Admins, func(i, j int) bool {
+    return ap.Admins[i].Fname < ap.Admins[j].Fname
+  })
   p, _ := loadAdmins(ap)
   renderAdmins(w, "./html/listAdmins", p)
 }
@@ -346,53 +413,6 @@ func filterPunchcard(tp timecardPage) []Pcard {
 }
 
 
-//RENDER SECTION
-//Renders all html pages from the system
-func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-  t, _ := template.ParseFiles(tmpl + ".html")
-  t.Execute(w, p)
-}
-
-func renderTimecard(w http.ResponseWriter, tmpl string, p *timecardPage) {
-  t, _ := template.ParseFiles(tmpl + ".html")
-  t.Execute(w, p)
-}
-
-func renderUsers(w http.ResponseWriter, tmpl string, p *userPage) {
-  t, _ := template.ParseFiles(tmpl + ".html")
-  t.Execute(w, p)
-}
-
-func renderAdmins(w http.ResponseWriter, tmpl string, p *adminPage) {
-  t, _ := template.ParseFiles(tmpl + ".html")
-  t.Execute(w, p)
-}
-
-func renderTimecardEdit(w http.ResponseWriter, tmpl string, p *timecardPage) {
-  t, _ := template.ParseFiles(tmpl + ".html")
-  t.Execute(w, p)
-}
-
-func renderEditPunchPage(w http.ResponseWriter, tmpl string, p *Punches) {
-  t, _ := template.ParseFiles(tmpl + ".html")
-  t.Execute(w, p)
-}
-
-func renderAddPunchPage(w http.ResponseWriter, tmpl string, p *Punches) {
-  t, _ := template.ParseFiles(tmpl + ".html")
-  t.Execute(w, p)
-}
-
-func renderEditUserPage(w http.ResponseWriter, tmpl string, p *neicacUser) {
-  t, _ := template.ParseFiles(tmpl + ".html")
-  t.Execute(w, p)
-}
-
-func renderEditAdminPage(w http.ResponseWriter, tmpl string, p *adminUser) {
-  t, _ := template.ParseFiles(tmpl + ".html")
-  t.Execute(w, p)
-}
-//END RENDER SECTION
 
 //Created unique session ID to insure the user is in the current session
 //When entering in data about logging in or logging out
@@ -581,9 +601,8 @@ func masterPunchOut(w http.ResponseWriter, r *http.Request){
 func deletePunch(w http.ResponseWriter, r *http.Request){
   vars := mux.Vars(r)
   a := vars["Value"]
-  fmt.Println(a)
   deletePunchMongo(a)
-  http.Redirect(w, r, "http://rebirtharmitage.com:8084/admin", 302)
+  http.Redirect(w, r, "http://rebirtharmitage.com:8084/listUsers", 302)
 }
 
 func editPunchProcess(w http.ResponseWriter, r *http.Request){
@@ -711,10 +730,103 @@ func editAdminProcess(w http.ResponseWriter, r *http.Request) {
     }else{
       fmt.Fprint(w, "User already Exists")
     }
-    
   }
 }
 
+//Login to the admin system
+func loadUserReportViewHandler(w http.ResponseWriter, r *http.Request) {
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  vars := mux.Vars(r)
+  s := vars["Value"]
+  p, _ := loadPage(s)
+  renderTemplate(w, "./html/loadUserReport", p)
+}
+
+//Editable Time Card
+func timecardReportProcess(w http.ResponseWriter, r *http.Request) {
+  tp := timecardPage{}
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  vars := mux.Vars(r)
+  s := strings.Split(vars["Value"], "`")
+  startdate, enddate, pin := s[0], s[1], s[2]
+  //fmt.Println(startdate + " " + enddate + " " + pin)
+  i, err := strconv.Atoi(pin)
+  if err != nil {
+    http.Redirect(w, r, "http://rebirtharmitage.com:8084/generalError", 301)
+  }
+  a := checkStatus(i)
+  layout := "2006-01-02"
+  startTime, err := time.Parse(layout, startdate)
+    if err != nil {
+        http.Redirect(w, r, "http://rebirtharmitage.com:8084/generalError", 301)
+  }
+  endTime, err := time.Parse(layout, enddate)
+    if err != nil {
+        http.Redirect(w, r, "http://rebirtharmitage.com:8084/generalError", 301)
+  }
+  tp.Title = a.Username
+  tp.Body = a.Username
+  tp.Username = a.Username
+  tp.Pin = i
+  tp.Status = a.Status
+  tp.Fname = a.Fname
+  tp.Lname = a.Lname
+  tp.Department = a.Department
+  tp.Current = time.Now()
+  tp.Punchcard = getPunches(tp, 1)
+  tp.AllPunchcard = filterPunchcardReport(tp, startTime, endTime)
+  //tp.Punchcard = filterPunchcardCurrent(tp)
+  tp.Sum = findHoursWorked(tp)
+  tp.FormattedSum = fmtDuration(tp.Sum)
+  for m := range tp.AllPunchcard{
+    fmt.Println(tp.AllPunchcard[m])
+  }
+  for j := range tp.Punchcard{
+    tp.Punchcard[j].FormattedPunch = tp.Punchcard[j].Punch.Format("3:04PM")
+  }
+  for k := range tp.AllPunchcard{
+    for m := range tp.AllPunchcard[k].Punchf{
+      tp.AllPunchcard[k].Punchf[m].FormattedPunch = tp.AllPunchcard[k].Punchf[m].Punch.Format("3:04 PM")
+    }
+  }
+  p, _ := loadTimecardReport(tp)
+  renderTimecardReport(w, "./html/timecardReport", p)
+}
+
+func filterPunchcardReport(tp timecardPage, dtime time.Time, ctime time.Time) []Pcard {
+  pcard := []Pcard{}
+  pctime := ctime
+  dctime := dtime
+  diff := time.Now().Sub(dtime)
+  c := int(diff.Hours())/24
+  for j := 0; j <= c; j++ {
+    p := Pcard{}
+    ctime = ctime.AddDate(0, 0, -j)
+    dtime = ctime.AddDate(0, 0, -1)
+    p.Startdate = dtime
+    p.Enddate = ctime
+    p.Title = dtime.Format("Mon Jan _2 2006")
+    
+    fmt.Println(j)
+    for k := range tp.Punchcard{
+      if inTimeSpan(dtime, ctime, tp.Punchcard[k].Punch){
+        p.Punchf = append(p.Punchf, tp.Punchcard[k])
+      }
+    }
+    if p.Punchf != nil{
+      pcard = append(pcard, p)
+    }
+    ctime = pctime
+    dtime = dctime
+  }
+  for m := range pcard{
+    s := findHoursWorkedAll(pcard[m])
+    t := fmtDuration(s)
+    pcard[m].Sum = s
+    pcard[m].FormattedSum = t
+  }
+  return pcard
+}
 
 /*
 	Start of ROUTER Section
@@ -754,6 +866,8 @@ func main() {
   router.HandleFunc("/editUserPage/{Value}", editUserPageViewHandler)
   router.HandleFunc("/editUserProcess", editUserProcess).Methods("POST")
   router.HandleFunc("/editAdminPage/{Value}", editAdminPageViewHandler)
+  router.HandleFunc("/loadUserReport/{Value}", loadUserReportViewHandler)
+  router.HandleFunc("/timecardReportProcess/{Value}", timecardReportProcess)
   router.HandleFunc("/editAdminProcess", editAdminProcess).Methods("POST")
   router.HandleFunc("/logout", logoffProcess)
 	http.Handle("/css/",http.StripPrefix("/css/", http.FileServer(http.Dir("./css"))))

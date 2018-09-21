@@ -35,6 +35,12 @@ type timecardPage struct {
   AllPunchcard []Pcard
 }
 
+type timecardReport struct {
+  Startdate string `json:"startdate"`
+  Enddate   string `json:"enddate"`
+  Pin       string `json:"pin"`
+}
+
 type userPage struct {
   Title string
   Body string

@@ -5,12 +5,10 @@
  */
 body{
   padding-top: 54px;
-  min-height: 100%;
-  height: 100%;
 }
 header {
   /*padding: 154px 0 100px;*/
-  padding: 75px 0 20px;
+  padding: 154px 0 20px;
 }
 
 @media (min-width: 992px) {
@@ -21,15 +19,14 @@ header {
   
 }
 
-#mainbody{
-  margin-top: 54px;
-  min-height: 100%;
-}
-
 .banner{
   margin-left: -10px;
 }
 
 section {
   padding: 25px 0;
+}
+
+.navbar-collapse.collapse.in {
+  display: block!important;
 }

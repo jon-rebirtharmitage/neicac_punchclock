@@ -11,19 +11,19 @@
     <title>NEICAC Punch Card</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="/css/core.css" rel="stylesheet">
     
     <!-- Import AngularJS -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+    
 
   </head>
 
-  <body>
+  <body id="page-top">
 
-    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
       <div class="container">
         <a class="navbar-brand" href="#">NEICAC Timeclock System</a>
@@ -33,9 +33,12 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
+              <a class="nav-link" href="http://rebirtharmitage.com:8084/">Home
+                <span class="sr-only">(current)</span>
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="http://rebirtharmitage.com:8084/adminLogin">Admin Login</a>
+              <a class="nav-link" href="http://rebirtharmitage.com:8084/timecard">View Timecard</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Service Request</a>
@@ -48,28 +51,31 @@
       </div>
     </nav>
 
-    
-    <div class="container">
     <div data-target="mainNav" data-offset="0" id="mainbody">
       <section id="main">
-        <div class="container-center" ng-controller="timecard">
+        <div class="container" ng-controller="punch">
           <div class="row">
             <div class="col-lg-12 mx-auto">
-              <h2>Punch Card System</h2>
-              <p class="lead">Enter your Pin to Punch In / Out</p>
+              <h2>Time System Report Generator</h2>
+              <p class="lead">Generate Printable Report for User</p>
+                <p>
+                   Select Date Range
+                </p>
               <p>
-               Enter Pin Number : <input type="text" name="pin" id="pin" ng-model="item.pin"><br>
+                <input type="date" id="startdate" value="">
               </p>
-               <p>
-               <button type="submit" ng-click="login()" id="action-button" class="btn btn-primary buffered">Login</button>
+              <p>
+                <input type="date" id="enddate" value="">
               </p>
+              <p>
+                <button type="Submit" ng-click="loadReport()" id="action-button" class="btn btn-primary buffered">Load Users Report</button>
+              </p>
+                
             </div>
           </div>
         </div>
       </section>
-      </div>
-    </div>
-    
+
     <!-- Footer -->
     <footer class="py-5 bg-dark">
       <div class="container">
@@ -80,19 +86,20 @@
 
     <!-- Bootstrap core JavaScript -->
     <script src="/js/jquery.min.js"></script>
-
     <!-- Custom JavaScript for this theme -->
-    <script src="/js/bootstrap.js"></script>
+    <script src="/js/core.js"></script>
   
     <script type="text/javascript">
-		var timecard = function($scope) {
+		var punch = function($scope) {
 			$scope.items = [];
-        $scope.login = function() {
-				  var str = "";
-          str = (str + document.getElementById('pin').value);
-					window.location.replace("http://rebirtharmitage.com:8084/loginProcess/" + str);
-        }
-			}
+      $scope.loadReport = function() {
+        var sd = document.getElementById('startdate').value;
+        var ed = document.getElementById('enddate').value;
+        var str = "";
+        str = sd + "`" + ed + "`" + "{{.Title}}";
+        window.location.replace("http://rebirtharmitage.com:8084/timecardReportProcess/" + str);
+      }
+    }
 	</script>
 
   </body>
